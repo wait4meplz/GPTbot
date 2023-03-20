@@ -2,7 +2,7 @@ import vk_api
 import openai
 import tokss
 import sqlitebase
-
+import aiohttp
 import asyncio
 from vkbottle.user import User
 from vkbottle.bot import Bot, Message
@@ -24,12 +24,13 @@ longpoll = VkLongPoll(vk_session)
 
 
 infsql = sqlitebase.botBD()
+
 def botai(user_id,msg,keyboard):
     response = openai.Completion.create(
       model="text-davinci-003",
       prompt=msg,
       #temperature=0.9,
-      max_tokens=150,
+      max_tokens=15,
       top_p=1,
       #frequency_penalty=0.0,
       #presence_penalty=0.6,
@@ -65,10 +66,12 @@ for event in VkLongPoll(vk_session).listen():
 
         if msg != "":
             keyboard = VkKeyboard()
-            keyboard.add_button('button', VkKeyboardColor.PRIMARY)
+            keyboard.add_button('what is it?', VkKeyboardColor.PRIMARY,{"cmd":"click"})
+            if event.extra_values['payload'] == '{"cmd":"click"}':
+                print(event.message)
+                botai(user_id,msg,keyboard)
 
-            botai(user_id,msg,keyboard)
-            get_picture(user_id,msg)
+
 
 
 
