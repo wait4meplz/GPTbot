@@ -1,2 +1,3 @@
-AItoken = "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"
+AItoken = "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"
 VKtoken = "vk1.a.MaPIuiG4bDCIyL-AnBt1Nh7ldBPuVievHvUSoi2B1Rm7wpa0lU52AhsnJEQRgbUMLH59VsYtrnKqFq_kXYw-WCiUcdFXUX7PC1m9O6P2b2QUOT4t7kmRjg4IMbg6-SXklvwhI_YmbC1A6E7FKte0yIG9dfz8yIvbYM3NkMYiVHLIw5MwwdYm-Gsao8Qc2ov0BhIbfvT5ZIZyNh5zRnb_Kw"
+VKGRID = 218079348

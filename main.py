@@ -12,6 +12,8 @@ from vkbottle import API, BaseStateGroup, CtxStorage
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard,VkKeyboardColor
 
+from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
+
 from sqlalchemy import MetaData, Table, String, Integer, Column, Text, DateTime, Boolean
 from datetime import datetime
 
@@ -23,6 +25,10 @@ session_api = vk_session.get_api()
 longpoll = VkLongPoll(vk_session)
 
 
+vk_sessionbot = vk_api.VkApi(token = tokss.VKtoken)
+session_apibot = vk_session.get_api()
+longpollbot = VkBotLongPoll(vk_session,218079348)
+
 infsql = sqlitebase.botBD()
 
 def botai(user_id,msg,keyboard):
@@ -30,7 +36,7 @@ def botai(user_id,msg,keyboard):
       model="text-davinci-003",
       prompt=msg,
       #temperature=0.9,
-      max_tokens=15,
+      max_tokens=150,
       top_p=1,
       #frequency_penalty=0.0,
       #presence_penalty=0.6,
@@ -39,14 +45,14 @@ def botai(user_id,msg,keyboard):
     return vk_session.method('messages.send',{'user_id':user_id, 'message':response['choices'][0]['text'],'keyboard': keyboard.get_keyboard(),'random_id':0})
     #print(response['choices'][0]['text'])
 
-def get_picture(user_id, msg):
+def get_picture(user_id, msg,keyboard):
 
     response = openai.Image.create(
         prompt = msg,
         n = 1,
         size="1024x1024"
     )
-    return vk_session.method('messages.send', {'user_id': user_id, 'message': response['data'][0]['url'], 'random_id': 0})
+    return vk_session.method('messages.send', {'user_id': user_id, 'message': response['data'][0]['url'],'keyboard': keyboard.get_keyboard(), 'random_id': 0})
 
 
 
@@ -56,22 +62,30 @@ print(longpoll,vk_session)
 
 infsql.trysql2()
 
-for event in VkLongPoll(vk_session).listen():
+keyboard = VkKeyboard()
+keyboard.add_callback_button('id', VkKeyboardColor.PRIMARY, {"cmd": "click"})
+keyboard.add_callback_button('id', VkKeyboardColor.PRIMARY, {"cmd": "click3"})
 
-    if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-        msg = event.text.lower()
-        user_id = event.user_id
+for event in VkBotLongPoll(vk_session,218079348).listen():
+    print(event.object.event_id,event.object.user_id,event.object.peer_id)
+    if event.type == VkBotEventType.MESSAGE_EVENT:
+        event_id = event.object.event_id
+        user_id = event.object.user_id
+        peer_id = event.object.peer_id
+        vk_session.method('messages.sendMessageEventAnswer',
+                          {'event_id': event_id, 'peer_id': peer_id, 'user_id': user_id,'random_id': 0})
 
 
+        print(event.object.payload.get('type'),event.object.payload.get('payload'))
 
+    elif event.type == VkBotEventType.MESSAGE_NEW: #and event.to_me 'peer_id':peer_id,
+        msg = event.object.message['text']
+        user_id = event.object.message['from_id']
+        print(msg, user_id, event.type)
+
+        print(msg,user_id,event.object)
         if msg != "":
-            keyboard = VkKeyboard()
-            keyboard.add_button('what is it?', VkKeyboardColor.PRIMARY,{"cmd":"click"})
-            if event.extra_values['payload'] == '{"cmd":"click"}':
-                print(event.message)
-                botai(user_id,msg,keyboard)
 
+            print(msg + "2")
 
-
-
-
+            vk_session.method('messages.send', {'user_id': user_id, 'message': 'hi','keyboard': keyboard.get_keyboard(), 'random_id': 0})
