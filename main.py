@@ -36,7 +36,7 @@ def botai(user_id,msg,keyboard):
       model="text-davinci-003",
       prompt=msg,
       #temperature=0.9,
-      max_tokens=150,
+      max_tokens=500,
       top_p=1,
       #frequency_penalty=0.0,
       #presence_penalty=0.6,
@@ -50,7 +50,7 @@ def get_picture(user_id, msg,keyboard):
     response = openai.Image.create(
         prompt = msg,
         n = 1,
-        size="1024x1024"
+        size="256x256"
     )
     return vk_session.method('messages.send', {'user_id': user_id, 'message': response['data'][0]['url'],'keyboard': keyboard.get_keyboard(), 'random_id': 0})
 
@@ -63,29 +63,33 @@ print(longpoll,vk_session)
 infsql.trysql2()
 
 keyboard = VkKeyboard()
-keyboard.add_callback_button('id', VkKeyboardColor.PRIMARY, {"cmd": "click"})
+keyboard.add_callback_button('нарисуй', VkKeyboardColor.PRIMARY, {"cmd": "click"})
 keyboard.add_callback_button('id', VkKeyboardColor.PRIMARY, {"cmd": "click3"})
-
+msg=""
 for event in VkBotLongPoll(vk_session,218079348).listen():
+
     print(event.object.event_id,event.object.user_id,event.object.peer_id)
+
     if event.type == VkBotEventType.MESSAGE_EVENT:
+
         event_id = event.object.event_id
         user_id = event.object.user_id
         peer_id = event.object.peer_id
-        vk_session.method('messages.sendMessageEventAnswer',
-                          {'event_id': event_id, 'peer_id': peer_id, 'user_id': user_id,'random_id': 0})
 
+        print(event.object.payload, event.object.payload.get('cmd'),msg)
+        if event.object.payload.get('cmd') == 'click' and msg != "":
 
-        print(event.object.payload.get('type'),event.object.payload.get('payload'))
+            get_picture(user_id, msg, keyboard)
+
+        vk_session.method('messages.sendMessageEventAnswer',{'event_id': event_id, 'peer_id': peer_id, 'user_id': user_id, 'random_id': 0})
 
     elif event.type == VkBotEventType.MESSAGE_NEW: #and event.to_me 'peer_id':peer_id,
+
         msg = event.object.message['text']
         user_id = event.object.message['from_id']
         print(msg, user_id, event.type)
-
         print(msg,user_id,event.object)
+
         if msg != "":
-
             print(msg + "2")
-
-            vk_session.method('messages.send', {'user_id': user_id, 'message': 'hi','keyboard': keyboard.get_keyboard(), 'random_id': 0})
+            botai(user_id, msg, keyboard)
