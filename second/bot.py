@@ -24,7 +24,7 @@ class StatesPicture(BaseStateGroup):
     Q = 0
     END = 1
 
-dialog = np.load('dialogs.npy', allow_pickle='True').item()
+dialog = np.load('/GPTbot/second/dialogs.npy', allow_pickle='True').item()
 
 bot = Bot(token=groupApi)
 user = User(token=myApi)

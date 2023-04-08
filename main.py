@@ -2,21 +2,12 @@ import vk_api
 import openai
 import tokss
 import sqlitebase
-import aiohttp
-import asyncio
-from vkbottle.user import User
-from vkbottle.bot import Bot, Message
-from vkbottle.dispatch.rules.base import CommandRule, RegexRule
-from vkbottle import API, BaseStateGroup, CtxStorage
+
+
 
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard,VkKeyboardColor
-
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
-
-from sqlalchemy import MetaData, Table, String, Integer, Column, Text, DateTime, Boolean
-from datetime import datetime
-
 
 
 openai.api_key = tokss.AItoken
@@ -36,7 +27,7 @@ def botai(user_id,msg,keyboard):
       model="text-davinci-003",
       prompt=msg,
       #temperature=0.9,
-      max_tokens=500,
+      max_tokens=1000,
       top_p=1,
       #frequency_penalty=0.0,
       #presence_penalty=0.6,
@@ -50,7 +41,7 @@ def get_picture(user_id, msg,keyboard):
     response = openai.Image.create(
         prompt = msg,
         n = 1,
-        size="256x256"
+        size="1024x1024"
     )
     return vk_session.method('messages.send', {'user_id': user_id, 'message': response['data'][0]['url'],'keyboard': keyboard.get_keyboard(), 'random_id': 0})
 
